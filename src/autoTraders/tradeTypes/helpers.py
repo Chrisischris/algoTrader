@@ -1,0 +1,30 @@
+from auth.const import Actions
+import datetime, pytz, holidays
+
+tz = pytz.timezone('US/Eastern')
+us_holidays = holidays.US()
+# TODO Compare against schedule
+def isAfterHours(timestamp: int):
+  if not timestamp:
+    dt = datetime.datetime.now(tz)
+  else:
+    dt = datetime.datetime.fromtimestamp(timestamp / 1000)
+  openTime = datetime.time(hour = 9, minute = 30, second = 0)
+  closeTime = datetime.time(hour = 16, minute = 0, second = 0)
+  # If a holiday
+  if dt.strftime('%Y-%m-%d') in us_holidays:
+    return True
+  # If before 0930 or after 1600
+  if (dt.time() < openTime) or (dt.time() > closeTime):
+    return True
+  # If it's a weekend
+  if dt.date().weekday() > 4:
+    return True
+
+  return False  
+
+def trailingStopLoss(currentPrice: float, positionHigh: float, stopLossPercentage: float):
+  if currentPrice < (positionHigh * 1 - stopLossPercentage):
+    return Actions.SELL
+  else:
+    return Actions.NONE
