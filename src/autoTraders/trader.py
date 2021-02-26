@@ -28,7 +28,7 @@ def start_traders(traders: Iterable[Trader]):
     if (t.backtest):
       for c in range(1, len(t.candles)):
         # Get indicator result from data and pass to tradeType to execute
-        decision = t.indicator.run(t.candles[:c])
+        decision = t.indicator.run(t.candles[c - 1])
         currentCandle = t.candles[c - 1]
         t.tradeType.handle(decision, currentCandle)
     else:

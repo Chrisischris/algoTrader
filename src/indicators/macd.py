@@ -1,12 +1,13 @@
-from typing import Dict, Iterable
+from typing import Dict
 import talib
 import numpy
 from auth.const import Actions
 from indicators.indicatorType import IndicatorType
 
+# FIXME Not Ready for live trading -> Switch to new data responsibilities
 class MACD(IndicatorType):
   # MACD based trade signals, return BUY, SELL
-  def run(self, candles: Iterable[Dict]):
+  def run(self, candle: Dict[Any, Any]):
     close = self.handleData(candles)
     macd, macdsignal, macdhist = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
 

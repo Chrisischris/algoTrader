@@ -2,20 +2,23 @@ from typing import Any, Dict
 from auth.const import Actions
 from datetime import datetime
 from autoTraders.tradeTypes.tradeType import TradeType
-from .helpers import isAfterHours, trailingStopLoss
+from .helpers import isAfterHours, trailingStopLoss, takeProfit
 from outputHelpers.CSVBuilder import CSVBuilder
 
 class PaperTradeStock(TradeType):
 
-  def __init__(self, symbol: str, trailingStopLoss: float = 0):
+  def __init__(self, symbol: str, TSLPercent: float = 0, TPPercent: float = 0):
     self._symbol = symbol
     self.balance = 0
     self.inPosition = False
+
     self.purchasePrice = 0
     self.positionHigh = 0
-    self.trailingStopLoss = trailingStopLoss
+    self.TSLPercent = TSLPercent
+    self.TPPercent = TPPercent
+
     self.queueSell = False
-    self.CSVBuilder = CSVBuilder(['Action', 'Price', 'Balance', 'Date'], 'PaperTradeStock ' + symbol)
+    self.CSVBuilder = CSVBuilder(['Action', 'Price', 'P/L', 'Balance', 'Date'], 'PaperTradeStock ' + symbol)
 
   @property
   def symbol(self):
@@ -36,9 +39,13 @@ class PaperTradeStock(TradeType):
       self.sell(currentCandle)
       self.queueSell = False
     # IMPROVEMENT: Do stop losses change from after hours data?
-    elif not self.trailingStopLoss == 0 and not afterHours:
-      if (trailingStopLoss(float(currentCandle['close']), self.positionHigh, self.trailingStopLoss) == Actions.SELL):
+    elif not self.TSLPercent == 0 and not afterHours and self.inPosition:
+      if (trailingStopLoss(float(currentCandle['close']), self.positionHigh, self.TSLPercent) == Actions.SELL):
         print('Trailing Stop Loss Triggered')
+        self.sell(currentCandle)
+    elif not self.TPPercent == 0 and not afterHours and self.inPosition:
+      if takeProfit(float(currentCandle['close']), self.purchasePrice, self.TPPercent) == Actions.SELL:
+        print('Take Profit Triggered')
         self.sell(currentCandle)
   
     if (self.inPosition and currentCandle['close'] > self.positionHigh):
@@ -49,10 +56,11 @@ class PaperTradeStock(TradeType):
       self.inPosition = True
       self.purchasePrice = currentCandle['close']
       self.positionHigh = currentCandle['close']
-      self.CSVBuilder.write(['Bought', currentCandle['close'], "{0:.2f}".format(self.balance), datetime.fromtimestamp(currentCandle['datetime'] / 1000).isoformat(' ')])
+      self.CSVBuilder.write(['Bought', currentCandle['close'], 0, "{0:.2f}".format(self.balance), datetime.fromtimestamp(currentCandle['datetime'] / 1000).isoformat(' ')])
 
   def sell(self, currentCandle: Dict[Any, Any]):
     if self.inPosition:
       self.inPosition = False
-      self.balance += currentCandle['close'] - self.purchasePrice
-      self.CSVBuilder.write(['Sold', currentCandle['close'], "{0:.2f}".format(self.balance), datetime.fromtimestamp(currentCandle['datetime'] / 1000).isoformat(' ')])
+      PL = currentCandle['close'] - self.purchasePrice
+      self.balance += PL
+      self.CSVBuilder.write(['Sold', currentCandle['close'], "{0:.2f}".format(PL), "{0:.2f}".format(self.balance), datetime.fromtimestamp(currentCandle['datetime'] / 1000).isoformat(' ')])

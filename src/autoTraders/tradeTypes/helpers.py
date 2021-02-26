@@ -1,9 +1,11 @@
-from auth.const import Actions
+from auth.const import Actions, API_KEY, REDIRECT_URI, TOKEN_PATH
 import datetime, pytz, holidays
+from tda import auth, client
+import json
 
 tz = pytz.timezone('US/Eastern')
 us_holidays = holidays.US()
-# TODO Compare against schedule
+# TODO Compare against schedule, or use TDA to get market hours
 def isAfterHours(timestamp: int):
   if not timestamp:
     dt = datetime.datetime.now(tz)
@@ -23,8 +25,22 @@ def isAfterHours(timestamp: int):
 
   return False  
 
+# TODO use TDA API
+def isAfterHoursEquity():
+  return
+
+# TODO use TDA API
+def isAfterHoursOptions():
+  return
+
 def trailingStopLoss(currentPrice: float, positionHigh: float, stopLossPercentage: float):
-  if currentPrice < (positionHigh * 1 - stopLossPercentage):
+  if currentPrice <= (positionHigh * (1 - (stopLossPercentage / 100))):
+    return Actions.SELL
+  else:
+    return Actions.NONE
+
+def takeProfit(currentPrice: float, purchasePrice: float, takeProfitPercentage: float):
+  if currentPrice >= (purchasePrice * (takeProfitPercentage / 100)):
     return Actions.SELL
   else:
     return Actions.NONE

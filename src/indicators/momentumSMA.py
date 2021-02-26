@@ -4,6 +4,7 @@ import numpy
 from auth.const import Actions
 from indicators.indicatorType import IndicatorType
 
+# FIXME Not Ready for live trading -> Switch to new data responsibilities
 class MomentumSMA(IndicatorType):
 
   def __init__(self, aggregationMinutes: int, MOMperiod: int, SMAperiod: int):
@@ -12,7 +13,7 @@ class MomentumSMA(IndicatorType):
     self.SMAperiod = SMAperiod
 
   # momentumSMA based trade signals, return BUY, SELL
-  def run(self, candles: List[Dict[Any, Any]]):
+  def run(self, candle: Dict[Any, Any]):
     # TODO trim data
     close = self.handleData(candles)
   

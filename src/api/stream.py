@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, Iterable
 from tda.auth import easy_client
+from tda import auth
 from tda.streaming import StreamClient
 from auth.const import API_KEY, ACCOUNT_ID, TOKEN_PATH, REDIRECT_URI
 from selenium import webdriver
@@ -9,12 +10,21 @@ import json
 import logging
 logging.getLogger('').addHandler(logging.StreamHandler())
 
-client = easy_client(
-        api_key=API_KEY,
-        redirect_uri=REDIRECT_URI,
-        token_path=TOKEN_PATH,
-        webdriver_func=lambda: webdriver.Chrome())
-stream_client = StreamClient(client, account_id=ACCOUNT_ID)
+# client = easy_client(
+#         api_key=API_KEY,
+#         redirect_uri=REDIRECT_URI,
+#         token_path=TOKEN_PATH,
+#         webdriver_func=lambda: webdriver.Chrome())
+try:
+    client = auth.client_from_token_file(TOKEN_PATH, API_KEY)
+    stream_client = StreamClient(client, account_id=int(ACCOUNT_ID))
+except FileNotFoundError:
+    from selenium import webdriver
+    from webdriver_manager.chrome import ChromeDriverManager
+    with webdriver.Chrome(ChromeDriverManager().install()) as driver:
+        client = auth.client_from_login_flow(
+            driver, API_KEY, REDIRECT_URI, TOKEN_PATH)
+        stream_client = StreamClient(client, account_id=int(ACCOUNT_ID))
 
 async def read_stream(handler: Callable[[Dict[Any, Any]], None], symbols: Iterable[str]):
   await stream_client.login()
