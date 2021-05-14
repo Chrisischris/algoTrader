@@ -1,5 +1,10 @@
 # Algorithmic Stock Trader / Backtester
-![Master Branch Status](https://github.com/Chrisischris/algoTrader/actions/workflows/python-app.yml/badge.svg?branch=master)
+
+<p align="center">
+<a href="https://github.com/Chrisischris/algoTrader/actions"><img alt="Master Branch Status" src="https://github.com/Chrisischris/algoTrader/actions/workflows/python-app.yml/badge.svg?branch=master"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
+
 ## Pre Reqs
 1. Create a TDA developer account here https://developer.tdameritrade.com/ and make a new app with a callback url of "http://localhost:8080/" and take note of the "Consumer Key" this is the api key you will give this script
 
