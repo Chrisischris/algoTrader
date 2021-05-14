@@ -1,6 +1,6 @@
 from indicators.indicatorType import IndicatorType
 from outputHelpers.CSVBuilder import CSVBuilder
-from api.request import getClient, request
+from data_apis.request import getClient, request
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 from auth.const import Actions

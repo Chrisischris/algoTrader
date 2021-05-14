@@ -1,7 +1,7 @@
 
 from typing import Any, Dict, Iterable
-from api.stream import start_stream
-from api.request import request
+from data_apis.stream import start_stream
+from data_apis.request import request
 from autoTraders.tradeTypes.tradeType import TradeType
 from indicators.indicatorType import IndicatorType
 from plot.plot import PricePlot
