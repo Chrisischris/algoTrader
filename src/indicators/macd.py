@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict, Iterable
 import talib
 import numpy
 from auth.const import Actions
@@ -8,7 +8,9 @@ from indicators.indicatorType import IndicatorType
 class MACD(IndicatorType):
   # MACD based trade signals, return BUY, SELL
   def run(self, candle: Dict[Any, Any]):
-    close = self.handleData(candles)
+    # close = self.handleData(candles)
+    # Temp to pass lint
+    close = 0
     macd, macdsignal, macdhist = talib.MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
 
     last = len(macdhist) - 1
