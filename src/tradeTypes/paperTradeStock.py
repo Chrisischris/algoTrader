@@ -1,7 +1,6 @@
 from typing import Any, Dict
 from auth.const import Actions
-from datetime import datetime
-from autoTraders.tradeTypes.tradeType import TradeType
+from tradeTypes.tradeType import TradeType
 from .helpers import isAfterHours, trailingStopLoss, takeProfit
 from outputHelpers.CSVBuilder import CSVBuilder
 
@@ -27,7 +26,7 @@ class PaperTradeStock(TradeType):
         return self._symbol
 
     def handle(self, res: Actions, currentCandle: Dict[Any, Any]):
-        afterHours = isAfterHours(currentCandle["datetime"])
+        afterHours = isAfterHours(currentCandle.name)
 
         if res == Actions.BUY and not afterHours:
             self.buy(currentCandle)
@@ -74,9 +73,7 @@ class PaperTradeStock(TradeType):
                     currentCandle["close"],
                     0,
                     "{0:.2f}".format(self.balance),
-                    datetime.fromtimestamp(currentCandle["datetime"] / 1000).isoformat(
-                        " "
-                    ),
+                    currentCandle.name.isoformat(" "),
                 ]
             )
 
@@ -91,8 +88,6 @@ class PaperTradeStock(TradeType):
                     currentCandle["close"],
                     "{0:.2f}".format(PL),
                     "{0:.2f}".format(self.balance),
-                    datetime.fromtimestamp(currentCandle["datetime"] / 1000).isoformat(
-                        " "
-                    ),
+                    currentCandle.name.isoformat(" "),
                 ]
             )

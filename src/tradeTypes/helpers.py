@@ -1,16 +1,19 @@
-from auth.const import Actions, API_KEY, REDIRECT_URI, TOKEN_PATH
-import datetime, pytz, holidays
-from tda import auth, client
-import json
+from auth.const import Actions
+import datetime
+import pytz
+import holidays
+
 
 tz = pytz.timezone("US/Eastern")
 us_holidays = holidays.US()
+
+
 # TODO Compare against schedule, or use TDA to get market hours
-def isAfterHours(timestamp: int):
+def isAfterHours(timestamp: datetime):
     if not timestamp:
         dt = datetime.datetime.now(tz)
     else:
-        dt = datetime.datetime.fromtimestamp(timestamp / 1000)
+        dt = timestamp
     openTime = datetime.time(hour=9, minute=30, second=0)
     closeTime = datetime.time(hour=16, minute=0, second=0)
     # If a holiday

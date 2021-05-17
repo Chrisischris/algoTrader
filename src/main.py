@@ -1,18 +1,19 @@
-from autoTraders.trader import start_traders, Trader
-from autoTraders.tradeTypes.paperTradeStock import PaperTradeStock
+from autoTraders.backtestTrader import BacktestTrader
+from tradeTypes.paperTradeStock import PaperTradeStock
 from indicators.pivotPoints import PivotPoints
-from datetime import date, datetime, timedelta
+from datetime import datetime
+from dataAPIs.alpaca import AlpacaDataAPI
 
 
 def main():
     # BACKTESTING
     traders = [
-        Trader(
+        BacktestTrader(
             PaperTradeStock("FB", 0, 100.1),
-            PivotPoints("FB"),
-            True,
-            datetime(2020, 11, 5, 9),
-            datetime(2020, 12, 26, 9),
+            PivotPoints("FB", AlpacaDataAPI()),
+            AlpacaDataAPI(),
+            datetime(2021, 4, 5, 9),
+            datetime(2021, 5, 5, 9),
         )
     ]
 
@@ -21,9 +22,7 @@ def main():
     #   Trader(PaperTradeStock('SPY'), PivotPoints('SPY'), False)
     # ]
 
-    # start_traders(traders)
-
-    PivotPoints("TSLA").getHLC(datetime.now())
+    BacktestTrader.start_traders(traders)
 
 
 if __name__ == "__main__":
