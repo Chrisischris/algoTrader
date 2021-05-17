@@ -13,7 +13,7 @@ def main():
             PivotPoints("FB", AlpacaDataAPI()),
             AlpacaDataAPI(),
             datetime(2021, 4, 5, 9),
-            datetime(2021, 5, 5, 8),
+            datetime(2021, 5, 5, 9),
         )
     ]
 
