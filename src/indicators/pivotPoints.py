@@ -1,20 +1,21 @@
+from alpaca_trade_api.rest import TimeFrame
+from pandas.core.series import Series
+from dataAPIs.dataAPIType import DataAPIType
 from indicators.indicatorType import IndicatorType
 from outputHelpers.CSVBuilder import CSVBuilder
-from data_apis.request import getClient, request
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 from auth.const import Actions
-from tda import client
-import sys
-import json
+from models.bars import Bars
+
 
 # FIXME Partially Ready for Live Trading
 # Important Info: Waits for 1 candle before action
 class PivotPoints(IndicatorType):
-    def __init__(self, symbol):
+    def __init__(self, symbol: str, dataAPI: DataAPIType):
         self.symbol = symbol
-        self.previousDayData: List
-        self.lastCandle: Dict[Any, Any] = {}
+        self.dataAPI = dataAPI
+        self.lastCandle: Series = Series()
         self.HLC = {
             "high": None,
             "low": None,
@@ -28,12 +29,13 @@ class PivotPoints(IndicatorType):
 
     # Pivot Point based trade signals, return BUY, SELL
     # Always use stop loss, sell signal not guarenteed
-    def run(self, candle: Dict[Any, Any]):
-        HLC = self.getHLC(datetime.fromtimestamp(candle["datetime"] / 1000))
+    def run(self, bars: Bars):
+        candle = bars.get_latest_bar()
+        HLC = self.getHLC(candle.name)
 
         if not HLC["close"]:
             return Actions.NONE
-        elif not self.lastCandle:
+        elif self.lastCandle.empty:
             self.lastCandle = candle
             return Actions.NONE
 
@@ -52,7 +54,7 @@ class PivotPoints(IndicatorType):
 
         self.CSVBuilder.write(
             [
-                datetime.fromtimestamp(candle["datetime"] / 1000).isoformat(" "),
+                candle.name.isoformat(" "),
                 Action,
                 candle["close"],
                 "{0:.2f}".format(S2),
@@ -68,26 +70,22 @@ class PivotPoints(IndicatorType):
 
     # Return H, L, C for previous trading day
     def getHLC(self, currentTime: datetime) -> Any:
-        # TODO Don't re-request unless its a new day
+        # Don't re-request unless its a new day
+        if not self.HLC["datetime"] or (
+            currentTime - self.HLC["datetime"]
+        ) >= timedelta(days=1):
+            day_bars = self.dataAPI.get_bars_timeframe(
+                self.symbol, TimeFrame.Day, currentTime - timedelta(days=2), currentTime
+            ).get_bars()
 
-        c = getClient()
-        r = c.get_price_history(
-            self.symbol,
-            end_datetime=currentTime,
-            frequency_type=client.Client.PriceHistory.FrequencyType.DAILY,
-            period_type=client.Client.PriceHistory.PeriodType.MONTH,
-        )
+            # TODO Make sure we get the right candle, timestamp > 24 hours old
+            current = day_bars.iloc[len(day_bars) - 1]
 
-        assert r.status_code == 200, r.raise_for_status()
-        res = r.json()
+            self.HLC = {
+                "high": current["high"],
+                "low": current["low"],
+                "close": current["close"],
+                "datetime": current.name,
+            }
 
-        # Make sure we get the right candle, timestamp > 24 hours old
-        current = len(res["candles"]) - 1
-        while (
-            datetime.now().timestamp() - (res["candles"][current]["datetime"] / 1000)
-            < 86400
-        ):
-            current -= 1
-
-        self.HLC = res["candles"][current]
         return self.HLC

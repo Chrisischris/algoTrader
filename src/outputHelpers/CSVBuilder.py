@@ -6,6 +6,8 @@ class CSVBuilder:
     def __init__(self, fields: list, filename: str):
         self.field = fields
         self.outputFilePath = os.path.join(OUTPUT_PATH, filename + ".csv")
+        if not os.path.exists(OUTPUT_PATH):
+            os.makedirs(OUTPUT_PATH)
         self.f = open(self.outputFilePath, "w")
         for f in fields:
             self.f.write(f + ", ")

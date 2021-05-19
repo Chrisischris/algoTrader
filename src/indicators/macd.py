@@ -4,6 +4,7 @@ import numpy
 from auth.const import Actions
 from indicators.indicatorType import IndicatorType
 
+
 # FIXME Not Ready for live trading -> Switch to new data responsibilities
 class MACD(IndicatorType):
     # MACD based trade signals, return BUY, SELL
