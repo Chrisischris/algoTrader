@@ -1,8 +1,9 @@
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, List
 import talib
 import numpy
 from auth.const import Actions
 from indicators.indicatorType import IndicatorType
+
 
 # FIXME Not Ready for live trading -> Switch to new data responsibilities
 class MomentumSMA(IndicatorType):
