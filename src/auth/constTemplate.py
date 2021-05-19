@@ -10,6 +10,13 @@ TOKEN_PATH = os.path.join(DIRNAME, "token.pickle")
 OUTPUT_PATH = os.path.dirname(__file__).replace("auth", "output")
 
 
+# Twitter keys
+consumer_key = ""
+consumer_secret = ""
+access_key = ""
+access_secret = ""
+
+
 class Actions(Enum):
     BUY = "BUY"
     SELL = "SELL"
