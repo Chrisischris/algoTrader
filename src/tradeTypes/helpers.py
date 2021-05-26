@@ -42,6 +42,19 @@ def isAfterHoursOptions():
 def trailingStopLoss(
     currentPrice: float, positionHigh: float, stopLossPercentage: float
 ):
+    """Trailing Stop Loss Action
+
+    Args:
+        currentPrice (float): Current price
+        positionHigh (float): Highest price during postion holding
+        stopLossPercentage (float): How far away to trail
+            IE: stopLossPercentage = 5
+                positionHigh = 100
+                A sell signal would be generated at currentPrice <= 95
+
+    Returns:
+        Actions: Action signal
+    """
     if currentPrice <= (positionHigh * (1 - (stopLossPercentage / 100))):
         return Actions.SELL
     else:
@@ -49,6 +62,19 @@ def trailingStopLoss(
 
 
 def takeProfit(currentPrice: float, purchasePrice: float, takeProfitPercentage: float):
+    """Take Profit Action
+
+    Args:
+        currentPrice (float): Current Price
+        purchasePrice (float): Price you purchased at
+        takeProfitPercentage (float): The overall percent you want to take profit at
+            IE: takeProfitPercentage = 200
+                purchasePrice = 50
+                A sell signal would be generated at currentPrice >= 100
+
+    Returns:
+        Actions: Action Signal
+    """
     if currentPrice >= (purchasePrice * (takeProfitPercentage / 100)):
         return Actions.SELL
     else:

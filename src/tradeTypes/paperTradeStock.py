@@ -3,10 +3,18 @@ from auth.const import Actions
 from tradeTypes.tradeType import TradeType
 from .helpers import isAfterHours, trailingStopLoss, takeProfit
 from outputHelpers.CSVBuilder import CSVBuilder
+from models.bars import Bars
 
 
 class PaperTradeStock(TradeType):
-    def __init__(self, symbol: str, TSLPercent: float = 0, TPPercent: float = 0):
+    def __init__(
+        self,
+        symbol: str,
+        TSLPercent: float = 0,
+        TPPercent: float = 0,
+        output: bool = False,
+        **kwargs
+    ):
         self._symbol = symbol
         self.balance = 0
         self.inPosition = False
@@ -17,15 +25,19 @@ class PaperTradeStock(TradeType):
         self.TPPercent = TPPercent
 
         self.queueSell = False
-        self.CSVBuilder = CSVBuilder(
-            ["Action", "Price", "P/L", "Balance", "Date"], "PaperTradeStock " + symbol
-        )
+
+        self.output = output
+        if self.output:
+            self.CSVBuilder = CSVBuilder(
+                ["Action", "Price", "P/L", "Balance", "Date"],
+                "PaperTradeStock " + symbol,
+            )
 
     @property
     def symbol(self):
         return self._symbol
 
-    def handle(self, res: Actions, currentCandle: Dict[Any, Any]):
+    def handle(self, res: Actions, currentCandle: Bars):
         afterHours = isAfterHours(currentCandle.name)
 
         if res == Actions.BUY and not afterHours:
@@ -47,7 +59,6 @@ class PaperTradeStock(TradeType):
                 )
                 == Actions.SELL
             ):
-                print("Trailing Stop Loss Triggered")
                 self.sell(currentCandle)
         elif not self.TPPercent == 0 and not afterHours and self.inPosition:
             if (
@@ -56,38 +67,41 @@ class PaperTradeStock(TradeType):
                 )
                 == Actions.SELL
             ):
-                print("Take Profit Triggered")
                 self.sell(currentCandle)
 
         if self.inPosition and currentCandle["close"] > self.positionHigh:
             self.positionHigh = currentCandle["close"]
+
+        return self.balance
 
     def buy(self, currentCandle: Dict[Any, Any]):
         if not self.inPosition:
             self.inPosition = True
             self.purchasePrice = currentCandle["close"]
             self.positionHigh = currentCandle["close"]
-            self.CSVBuilder.write(
-                [
-                    "Bought",
-                    currentCandle["close"],
-                    0,
-                    "{0:.2f}".format(self.balance),
-                    currentCandle.name.isoformat(" "),
-                ]
-            )
+            if self.output:
+                self.CSVBuilder.write(
+                    [
+                        "Bought",
+                        currentCandle["close"],
+                        0,
+                        "{0:.2f}".format(self.balance),
+                        currentCandle.name.isoformat(" "),
+                    ]
+                )
 
     def sell(self, currentCandle: Dict[Any, Any]):
         if self.inPosition:
             self.inPosition = False
             PL = currentCandle["close"] - self.purchasePrice
             self.balance += PL
-            self.CSVBuilder.write(
-                [
-                    "Sold",
-                    currentCandle["close"],
-                    "{0:.2f}".format(PL),
-                    "{0:.2f}".format(self.balance),
-                    currentCandle.name.isoformat(" "),
-                ]
-            )
+            if self.output:
+                self.CSVBuilder.write(
+                    [
+                        "Sold",
+                        currentCandle["close"],
+                        "{0:.2f}".format(PL),
+                        "{0:.2f}".format(self.balance),
+                        currentCandle.name.isoformat(" "),
+                    ]
+                )
