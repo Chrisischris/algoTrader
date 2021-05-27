@@ -7,17 +7,17 @@ from indicators.indicatorType import IndicatorType
 class MLProfitObjective(MLObjectiveType):
     def __init__(
         self,
-        tradeType: TradeType,
+        trade_type: TradeType,
         indicator: IndicatorType,
         bars: Bars,
     ):
-        self.tradeType = tradeType
+        self.trade_type = trade_type
         self.indicator = indicator
         self.bars = bars
 
     def objective(self):
-        currentPL = 0
+        current_pl = 0
         actions = self.indicator.backtest(self.bars)
         for bar, action in zip(self.bars.get_bars().iterrows(), actions):
-            currentPL = self.tradeType.handle(action, bar[1])
-        return currentPL
+            current_pl = self.trade_type.handle(action, bar[1])
+        return current_pl

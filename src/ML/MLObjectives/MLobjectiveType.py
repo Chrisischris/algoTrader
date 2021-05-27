@@ -12,7 +12,7 @@ class MLObjectiveType(ABC):
     @abstractmethod
     def __init__(
         self,
-        tradeType: TradeType,
+        trade_type: TradeType,
         indicator: IndicatorType,
         bars: Bars,
     ):

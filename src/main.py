@@ -9,7 +9,7 @@ from ML.MLObjectives.MLprofitObjective import MLProfitObjective
 
 
 def main():
-    MACDGridSearch()
+    macd_grid_search()
     # backtest()
 
 
@@ -27,11 +27,11 @@ def backtest():
     BacktestTrader.start_traders(traders)
 
 
-def MACDGridSearch():
-    paramGrid = ParameterGrid(
+def macd_grid_search():
+    param_grid = ParameterGrid(
         {
-            "TSLPercent": [*range(2, 50)],
-            "TPPercent": [0, *range(101, 200)],
+            "tsl_percent": [*range(2, 50)],
+            "tp_percent": [0, *range(101, 200)],
             "fastperiod": [*range(60, 3600, 240)],
             "slowperiod": [*range(60, 3600, 240)],
             "signalperiod": [*range(30, 3600, 120)],
@@ -41,7 +41,7 @@ def MACDGridSearch():
     max_profit, best_params = GridSearch(
         "TSLA",
         AlpacaDataAPI(),
-        paramGrid,
+        param_grid,
         PaperTradeStock,
         MACD,
         MLProfitObjective,

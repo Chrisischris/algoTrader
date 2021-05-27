@@ -26,16 +26,6 @@ jobs:
       run: |
         # stop the build if there are Python syntax errors or undefined names
         # --exit-zero treats all errors as warnings.
-        # VSCode Config to work with Black formatting
-        # "python.linting.flake8Args": [
-        #     "--ignore=E203",
-        #     "--ignore=E266",
-        #     "--ignore=E501",
-        #     "--ignore=W503",
-        #     "--max-line-length=88",
-        #     "--select=B,C,E,F,W,T4,B9,N8",
-        #     "--max-complexity=18"
-        # ]
         flake8 . --count --statistics --show-source --ignore=E203,E266,E501,W503 --max-line-length 88 --select=B,C,E,F,W,T4,B9,N8 --max-complexity 18
     #- name: Test with pytest
     #  run: |

@@ -12,8 +12,8 @@ class AlpacaDataAPI(DataAPIType):
     def get_bars_timeframe(
         self, symbol: str, timeframe, start: datetime, end: datetime
     ) -> Bars:
-        dateFormat = "%Y-%m-%d"
-        start = start.strftime(dateFormat)
-        end = end.strftime(dateFormat)
+        date_format = "%Y-%m-%d"
+        start = start.strftime(date_format)
+        end = end.strftime(date_format)
         bars = self.api.get_bars(symbol, timeframe, start, end, adjustment="raw").df
         return Bars(bars)

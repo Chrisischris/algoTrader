@@ -9,7 +9,7 @@ class TradeType(ABC):
         pass
 
     @abstractmethod
-    def handle(self, res: Actions, currentCandle: Bars) -> None:
+    def handle(self, res: Actions, current_candle: Bars) -> None:
         pass
 
     @property
