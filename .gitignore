@@ -141,3 +141,8 @@ cython_debug/
 token.pickle
 const.py
 /src/output/*.csv
+
+tweetCSVs/*
+
+!tweetCSVs/.gitkeep 
+
