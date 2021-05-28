@@ -142,7 +142,5 @@ token.pickle
 const.py
 /src/output/*.csv
 
-tweetCSVs/*
-
-!tweetCSVs/.gitkeep 
+/src/sentiment_apis/tweetCSVs/*.csv
 

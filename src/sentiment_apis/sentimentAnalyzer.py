@@ -16,7 +16,7 @@ class sentimentAnalyzer:
             total += self.get_score(row["tweet"])
 
         return total / len(self.posts)
-  
+
     def get_decision(self):
         compound = self.get_average()
         self.average = compound

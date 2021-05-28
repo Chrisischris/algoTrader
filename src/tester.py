@@ -1,5 +1,7 @@
-from sentiment_apis.twint_test import twitterSearch
-from sentiment_apis.sentiment_analysis import sentimentAnalyzer
+# Temporary file to test twint.
+
+from sentiment_apis.twint import twitterSearch
+from sentiment_apis.sentimentAnalyzer import sentimentAnalyzer
 
 searcher = twitterSearch()
 data = searcher.get_tweets_term("dogecoin")
