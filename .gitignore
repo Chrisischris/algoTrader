@@ -137,6 +137,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# MAC OS
+.DS_Store
+
 .vscode/
 token.pickle
 const.py

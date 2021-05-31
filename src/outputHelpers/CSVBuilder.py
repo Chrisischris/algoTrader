@@ -14,9 +14,9 @@ class CSVBuilder:
         self.f.write("\n")
         self.f.close()
 
-    def write(self, fieldValues: list):
+    def write(self, field_values: list):
         self.f = open(self.outputFilePath, "a")
-        for f in fieldValues:
+        for f in field_values:
             self.f.write(str(f) + ", ")
         self.f.write("\n")
         self.f.close()
