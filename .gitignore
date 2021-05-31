@@ -141,6 +141,5 @@ cython_debug/
 token.pickle
 const.py
 /src/output/*.csv
-
 /src/sentiment_apis/tweetCSVs/*.csv
 
