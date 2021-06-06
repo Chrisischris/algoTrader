@@ -27,7 +27,6 @@ def backtest():
     BacktestTrader.start_traders(traders)
 
 
-
 def macd_grid_search():
     param_grid = ParameterGrid(
         {
