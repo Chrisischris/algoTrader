@@ -12,80 +12,83 @@ from models.bars import Bars
 # FIXME Partially Ready for Live Trading
 # Important Info: Waits for 1 candle before action
 class PivotPoints(IndicatorType):
-    def __init__(self, symbol: str, dataAPI: DataAPIType):
+    def __init__(self, symbol: str, data_api: DataAPIType):
         self.symbol = symbol
-        self.dataAPI = dataAPI
-        self.lastCandle: Series = Series()
-        self.HLC = {
+        self.data_api = data_api
+        self.last_bar: Series = Series()
+        self.hlc = {
             "high": None,
             "low": None,
             "close": None,
             "datetime": None,
         }
-        self.CSVBuilder = CSVBuilder(
+        self.csv_builder = CSVBuilder(
             ["Date", "Action", "Price", "S2", "S1", "P", "R1", "R2"],
             "PivotPoints " + symbol,
         )
 
     # Pivot Point based trade signals, return BUY, SELL
-    # Always use stop loss, sell signal not guarenteed
+    # Always use stop loss, sell signal not guaranteed
     def run(self, bars: Bars):
         candle = bars.get_latest_bar()
-        HLC = self.getHLC(candle.name)
+        hlc = self.get_hlc(candle.name)
 
-        if not HLC["close"]:
+        if not hlc["close"]:
             return Actions.NONE
-        elif self.lastCandle.empty:
-            self.lastCandle = candle
+        elif self.last_bar.empty:
+            self.last_bar = candle
             return Actions.NONE
 
-        P = (HLC["high"] + HLC["low"] + HLC["close"]) / 3
-        R1 = (P * 2) - HLC["low"]
-        R2 = P + (HLC["high"] - HLC["low"])
-        S1 = (P * 2) - HLC["high"]
-        S2 = P - (HLC["high"] - HLC["low"])
+        p = (hlc["high"] + hlc["low"] + hlc["close"]) / 3
+        r1 = (p * 2) - hlc["low"]
+        r2 = p + (hlc["high"] - hlc["low"])
+        s1 = (p * 2) - hlc["high"]
+        s2 = p - (hlc["high"] - hlc["low"])
 
         # TODO figure out shorting
-        Action = Actions.NONE
-        if self.lastCandle["close"] <= R1 and candle["close"] > R1:
-            Action = Actions.BUY
-        elif candle["close"] >= R2:
-            Action = Actions.SELL
+        action = Actions.NONE
+        if self.last_bar["close"] <= r1 and candle["close"] > r1:
+            action = Actions.BUY
+        elif candle["close"] >= r2:
+            action = Actions.SELL
 
-        self.CSVBuilder.write(
+        self.csv_builder.write(
             [
                 candle.name.isoformat(" "),
-                Action,
+                action,
                 candle["close"],
-                "{0:.2f}".format(S2),
-                "{0:.2f}".format(S1),
-                "{0:.2f}".format(P),
-                "{0:.2f}".format(R1),
-                "{0:.2f}".format(R2),
+                "{0:.2f}".format(s2),
+                "{0:.2f}".format(s1),
+                "{0:.2f}".format(p),
+                "{0:.2f}".format(r1),
+                "{0:.2f}".format(r2),
             ]
         )
 
-        self.lastCandle = candle
-        return Action
+        self.last_bar = candle
+        return action
 
     # Return H, L, C for previous trading day
-    def getHLC(self, currentTime: datetime) -> Any:
+    def get_hlc(self, current_time: datetime) -> Any:
         # Don't re-request unless its a new day
-        if not self.HLC["datetime"] or (
-            currentTime - self.HLC["datetime"]
+        if not self.hlc["datetime"] or (
+            current_time - self.hlc["datetime"]
         ) >= timedelta(days=1):
-            day_bars = self.dataAPI.get_bars_timeframe(
-                self.symbol, TimeFrame.Day, currentTime - timedelta(days=2), currentTime
+            day_bars = self.data_api.get_bars_timeframe(
+                self.symbol,
+                TimeFrame.Day,
+                current_time - timedelta(days=2),
+                current_time,
             ).get_bars()
 
             # TODO Make sure we get the right candle, timestamp > 24 hours old
             current = day_bars.iloc[len(day_bars) - 1]
 
-            self.HLC = {
+            self.hlc = {
                 "high": current["high"],
                 "low": current["low"],
                 "close": current["close"],
                 "datetime": current.name,
             }
 
-        return self.HLC
+        return self.hlc

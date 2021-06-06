@@ -1,93 +1,106 @@
-from typing import Any, Dict
+from pandas.core.series import Series
 from auth.const import Actions
 from tradeTypes.tradeType import TradeType
-from .helpers import isAfterHours, trailingStopLoss, takeProfit
+from .helpers import is_after_hours, trailing_stop_loss, take_profit
 from outputHelpers.CSVBuilder import CSVBuilder
 
 
 class PaperTradeStock(TradeType):
-    def __init__(self, symbol: str, TSLPercent: float = 0, TPPercent: float = 0):
+    def __init__(
+        self,
+        symbol: str,
+        tsl_percent: float = 0,
+        tp_percent: float = 0,
+        output: bool = False,
+        **kwargs
+    ):
         self._symbol = symbol
         self.balance = 0
-        self.inPosition = False
+        self.in_position = False
 
-        self.purchasePrice = 0
-        self.positionHigh = 0
-        self.TSLPercent = TSLPercent
-        self.TPPercent = TPPercent
+        self.purchase_price = 0
+        self.position_high = 0
+        self.tsl_percent = tsl_percent
+        self.tp_percent = tp_percent
 
-        self.queueSell = False
-        self.CSVBuilder = CSVBuilder(
-            ["Action", "Price", "P/L", "Balance", "Date"], "PaperTradeStock " + symbol
-        )
+        self.queue_sell = False
+
+        self.output = output
+        if self.output:
+            self.csv_builder = CSVBuilder(
+                ["Action", "Price", "P/L", "Balance", "Date"],
+                "PaperTradeStock " + symbol,
+            )
 
     @property
     def symbol(self):
         return self._symbol
 
-    def handle(self, res: Actions, currentCandle: Dict[Any, Any]):
-        afterHours = isAfterHours(currentCandle.name)
+    def handle(self, res: Actions, current_bar: Series):
+        after_hours = is_after_hours(current_bar.name)
 
-        if res == Actions.BUY and not afterHours:
-            self.buy(currentCandle)
+        if res == Actions.BUY and not after_hours:
+            self.buy(current_bar)
         elif res == Actions.SELL:
-            if afterHours:
-                self.queueSell = True
+            if after_hours:
+                self.queue_sell = True
             else:
-                self.sell(currentCandle)
-        elif self.queueSell and not afterHours:
+                self.sell(current_bar)
+        elif self.queue_sell and not after_hours:
             # TODO check if you should still sell
-            self.sell(currentCandle)
-            self.queueSell = False
+            self.sell(current_bar)
+            self.queue_sell = False
         # IMPROVEMENT: Do stop losses change from after hours data?
-        elif not self.TSLPercent == 0 and not afterHours and self.inPosition:
+        elif not self.tsl_percent == 0 and not after_hours and self.in_position:
             if (
-                trailingStopLoss(
-                    float(currentCandle["close"]), self.positionHigh, self.TSLPercent
+                trailing_stop_loss(
+                    float(current_bar["close"]), self.position_high, self.tsl_percent
                 )
                 == Actions.SELL
             ):
-                print("Trailing Stop Loss Triggered")
-                self.sell(currentCandle)
-        elif not self.TPPercent == 0 and not afterHours and self.inPosition:
+                self.sell(current_bar)
+        elif not self.tp_percent == 0 and not after_hours and self.in_position:
             if (
-                takeProfit(
-                    float(currentCandle["close"]), self.purchasePrice, self.TPPercent
+                take_profit(
+                    float(current_bar["close"]), self.purchase_price, self.tp_percent
                 )
                 == Actions.SELL
             ):
-                print("Take Profit Triggered")
-                self.sell(currentCandle)
+                self.sell(current_bar)
 
-        if self.inPosition and currentCandle["close"] > self.positionHigh:
-            self.positionHigh = currentCandle["close"]
+        if self.in_position and current_bar["close"] > self.position_high:
+            self.position_high = current_bar["close"]
 
-    def buy(self, currentCandle: Dict[Any, Any]):
-        if not self.inPosition:
-            self.inPosition = True
-            self.purchasePrice = currentCandle["close"]
-            self.positionHigh = currentCandle["close"]
-            self.CSVBuilder.write(
-                [
-                    "Bought",
-                    currentCandle["close"],
-                    0,
-                    "{0:.2f}".format(self.balance),
-                    currentCandle.name.isoformat(" "),
-                ]
-            )
+        return self.balance
 
-    def sell(self, currentCandle: Dict[Any, Any]):
-        if self.inPosition:
-            self.inPosition = False
-            PL = currentCandle["close"] - self.purchasePrice
-            self.balance += PL
-            self.CSVBuilder.write(
-                [
-                    "Sold",
-                    currentCandle["close"],
-                    "{0:.2f}".format(PL),
-                    "{0:.2f}".format(self.balance),
-                    currentCandle.name.isoformat(" "),
-                ]
-            )
+    def buy(self, bar: Series):
+        if not self.in_position:
+            self.in_position = True
+            self.purchase_price = bar["close"]
+            self.position_high = bar["close"]
+            if self.output:
+                self.csv_builder.write(
+                    [
+                        "Bought",
+                        bar["close"],
+                        0,
+                        "{0:.2f}".format(self.balance),
+                        bar.name.isoformat(" "),
+                    ]
+                )
+
+    def sell(self, bar: Series):
+        if self.in_position:
+            self.in_position = False
+            pl = bar["close"] - self.purchase_price
+            self.balance += pl
+            if self.output:
+                self.csv_builder.write(
+                    [
+                        "Sold",
+                        bar["close"],
+                        "{0:.2f}".format(pl),
+                        "{0:.2f}".format(self.balance),
+                        bar.name.isoformat(" "),
+                    ]
+                )

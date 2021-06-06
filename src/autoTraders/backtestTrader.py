@@ -10,28 +10,27 @@ from dataAPIs.dataAPIType import DataAPIType
 class BacktestTrader:
     def __init__(
         self,
-        tradeType: TradeType,
+        trade_type: TradeType,
         indicator: IndicatorType,
-        dataAPI: DataAPIType,
+        data_api: DataAPIType,
         start: datetime = datetime.now() - timedelta(days=7),
         end: datetime = datetime.now(),
     ):
-        self.candles = []
-        self.tradeType = tradeType
+        self.bars = []
+        self.tradeType = trade_type
         self.indicator = indicator
-        self.dataAPI = dataAPI
+        self.data_api = data_api
         self.start = start
         self.end = end
 
     @staticmethod
     def start_traders(traders: Iterable["BacktestTrader"]):
         for t in traders:
-            t.candles = t.dataAPI.get_bars_timeframe(
+            t.bars = t.data_api.get_bars_timeframe(
                 t.tradeType.symbol, TimeFrame.Minute, t.start, t.end
             ).get_bars()
 
-            for index, candle in t.candles.iterrows():
+            for index, bar in t.bars.iterrows():
                 # Get indicator result from data and pass to tradeType to execute
-                decision = t.indicator.run(Bars(t.candles[:index]))
-                currentCandle = candle
-                t.tradeType.handle(decision, currentCandle)
+                decision = t.indicator.run(Bars(t.bars[:index]))
+                t.tradeType.handle(decision, bar)
