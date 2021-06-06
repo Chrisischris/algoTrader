@@ -30,7 +30,3 @@ class twitterSearch:
         return df
 
 
-searcher = twitterSearch()
-start = datetime(2021, 4, 1, 0, 0, 0)  # 4/1/2021 00:00:00
-end = datetime(2021, 4, 1, 0, 0, 0)  # 5/1/2021 00:00:00
-data = searcher.get_tweets_term("bitcoin", start, end, 3)
