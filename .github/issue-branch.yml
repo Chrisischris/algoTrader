@@ -1,0 +1,3 @@
+branches:
+  - label: sprint-*
+    name: sprint-*

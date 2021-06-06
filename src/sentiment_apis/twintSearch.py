@@ -1,6 +1,5 @@
 import twint
 from datetime import datetime, timedelta
-import re
 
 TIMEDELTA = 2
 
@@ -29,13 +28,6 @@ class twitterSearch:
         df = df[df["language"] == "en"]
         df = df[["username", "tweet"]]
         return df
-
-    def clean_tweet(self, tweet):
-        return tweet.join(
-            re.sub(
-                "(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet
-            ).split()
-        )
 
 
 searcher = twitterSearch()
