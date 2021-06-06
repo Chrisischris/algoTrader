@@ -9,8 +9,11 @@ from ML.MLObjectives.MLprofitObjective import MLProfitObjective
 
 
 def main():
-    # BACKTESTING
+    # macd_grid_search()
+    backtest()
 
+
+def backtest():
     traders = [
         BacktestTrader(
             PaperTradeStock("TSLA", 10, 120, True),
@@ -22,6 +25,7 @@ def main():
     ]
 
     BacktestTrader.start_traders(traders)
+
 
 
 def macd_grid_search():
