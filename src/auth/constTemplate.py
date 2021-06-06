@@ -7,8 +7,8 @@ REDIRECT_URI = "http://localhost:8080/"
 ACCOUNT_ID = "YOUR_ACCOUNT_ID"
 
 # Alpaca API Info
-APCA_API_KEY_ID = "KEY"
-APCA_API_SECRET_KEY = "SECRET KEY"
+APCA_API_KEY_ID = "PK04FHAGQ1GU6BEVKXU3"
+APCA_API_SECRET_KEY = "Wor1RnDDYvPqS9FQMJOtvjrORSwdKS45LYssWhp6"
 
 DIRNAME = os.path.dirname(__file__)
 TOKEN_PATH = os.path.join(DIRNAME, "token.pickle")

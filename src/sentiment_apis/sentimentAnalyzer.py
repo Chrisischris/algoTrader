@@ -1,7 +1,17 @@
 from nltk.sentiment import SentimentIntensityAnalyzer
+import re
 
 
-class sentimentAnalyzer:
+# Removes links and tags
+def clean_tweet(tweet):
+    return tweet.join(
+        re.sub(
+            "(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet
+        ).split()
+    )
+
+
+class NLTKsentimentAnalyzer:
     def __init__(self, posts):
         self.analyzer = SentimentIntensityAnalyzer()
         self.posts = posts
@@ -13,7 +23,7 @@ class sentimentAnalyzer:
     def get_average(self):
         total = 0
         for index, row in self.posts.iterrows():
-            total += self.get_score(row["tweet"])
+            total += self.get_score(clean_tweet(row["tweet"]))
 
         return total / len(self.posts)
 
@@ -26,3 +36,5 @@ class sentimentAnalyzer:
             return "HOLD"
         else:
             return "SELL"
+
+
