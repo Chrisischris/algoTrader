@@ -13,7 +13,7 @@ def main():
 
     traders = [
         BacktestTrader(
-            PaperTradeStock("TSLA", 10, 120, True),
+            PaperTradeStock("AAPL", 10, 120, True),
             MACD(540, 1260, 30),
             AlpacaDataAPI(),
             datetime(2021, 4, 5, 9),
