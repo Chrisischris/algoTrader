@@ -11,7 +11,8 @@ class Tweets:
     def get_all_tweets(self) -> DataFrame:
         return self.tweets
 
-    def get_tweets_time(self, start: datetime, end: datetime) -> DataFrame:
-        return self.tweets[
+    def get_tweets_time(self, start: datetime, end: datetime):
+        tweets = self.tweets[
             (self.tweets["date"] >= start) & (self.tweets["date"] <= end)
         ]
+        return tweets, len(tweets)

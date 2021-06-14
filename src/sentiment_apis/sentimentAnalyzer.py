@@ -2,7 +2,6 @@ from datetime import datetime
 from nltk.sentiment import SentimentIntensityAnalyzer
 import re
 from sentiment_apis.models.Tweets import Tweets
-from pandas import DataFrame
 
 
 # Removes links and tags
@@ -27,18 +26,15 @@ class NLTKsentimentAnalyzer:
     def get_score(self, input: str):
         return self.analyzer.polarity_scores(input)["compound"]
 
-    def get_average(self, df):
+    def get_total(self, df):
         total = 0
         for index, row in df.iterrows():
             total += self.get_score(clean_tweet(row["tweet"]))
 
-        return total / self.tweets.size
-
-    def get_decision(self, df: DataFrame):
-        compound = self.get_average(df)
-        self.average = compound
-        return compound
+        return total
 
     def evaluate(self, start: datetime, end: datetime):
-        df = self.tweets.get_tweets_time(start, end)
-        return self.get_decision(df)
+        results = self.tweets.get_tweets_time(start, end)
+        df = results[0]
+        count = results[1]
+        return self.get_total(df), count
