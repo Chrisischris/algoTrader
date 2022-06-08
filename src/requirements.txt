@@ -2,7 +2,7 @@ matplotlib==3.3.4
 selenium==3.141.0
 webdriver_manager==3.2.2
 numpy==1.20.0
-tda_api==0.7.1
+tda_api==1.6.0
 pytz==2021.1
 holidays==0.10.5.2
 # talib==0.1.1
