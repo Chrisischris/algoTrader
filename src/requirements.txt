@@ -1,6 +1,6 @@
 matplotlib==3.3.4
 selenium==3.141.0
-webdriver_manager==3.2.2
+webdriver_manager==3.8.5
 numpy==1.20.0
 tda_api==0.7.1
 pytz==2021.1
